@@ -62,13 +62,13 @@ root@55c24e15f7e6:/data/edstyle5# cat CVE-2018-1000156-proof.txt
 uid=0(root) gid=0(root) groups=0(root)
 ```
 
-`CVE-2018-1000156.patch` is pretty much the same as the original PoC created
+`CVE-2018-1000156.patch` here is pretty much the same as the original PoC created
 for that issue (`poc.patch` among the attachments on savannah linked above).
 
 
 ### CVE-2019-13638 - Shell command injection while invoking ed
 
-The GNU patch utility used to invoke `ed` via the shell interpreter and the filenames
+The GNU `patch` utility used to invoke `ed` via the shell interpreter and the filenames
 were not sanitized correctly, making it vulnerable to shell command injection.
 This way, exploitation of CVE-2019-13638 doesn't even require `ed` to be installed.
 
