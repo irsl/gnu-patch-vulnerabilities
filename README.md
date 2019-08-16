@@ -14,7 +14,12 @@ https://savannah.gnu.org/bugs/?53566
 
 ## CVE-2019-13638 - Shell command injection while invoking ed
 
-## CVE-2019-13636 - Directory traversal and arbitrary file append with (almost) arbitrary file content.
+
+## CVE-2019-13636 - Directory traversal and file append
+
+The directory traversal here made it possible to escape the working directory of patch
+and append (almost) arbitrary file content to any files on the file system.
+
 
 ## CVE-2018-20969 - OS shell execution via unrestricted ed filename
 
